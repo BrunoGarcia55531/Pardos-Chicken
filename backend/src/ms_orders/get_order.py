@@ -2,6 +2,16 @@ import json
 from common.db import orders_table
 from decimal import Decimal
 
+def decimal_to_native(obj):
+    if isinstance(obj, list):
+        return [decimal_to_native(v) for v in obj]
+    if isinstance(obj, dict):
+        return {k: decimal_to_native(v) for k, v in obj.items()}
+    if isinstance(obj, Decimal):
+        # si es entero, devolvemos int; si no, float
+        return int(obj) if obj % 1 == 0 else float(obj)
+    return obj
+
 def handler(event, context):
     path_params = event.get("pathParameters") or {}
     tenant_id = path_params.get("tenantId")
